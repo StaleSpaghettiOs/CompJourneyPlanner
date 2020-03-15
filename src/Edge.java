@@ -4,12 +4,14 @@ public class Edge {
     private String tripId;
     private Node sourceNode;
     private Node destinationNode;
+    private String edgeName;
 
     /** Constructor */
     public Edge(String tripId, Node sourceNode, Node destinationNode){
         this.tripId = tripId;
         this.sourceNode = sourceNode;
         this.destinationNode = destinationNode;
+        this.edgeName = sourceNode.getName() + "->" + destinationNode.getName();
     }
 
     /** Getter methods  */
@@ -23,5 +25,9 @@ public class Edge {
 
     public Node getDestinationNode() {
         return destinationNode;
+    }
+
+    public String getEdgeName() {
+        return edgeName;
     }
 }
