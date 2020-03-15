@@ -1,41 +1,71 @@
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 public class Trip {
 
     /** Fields */
-    private Map<String, Node> nodesMap;
-    private Collection<Edge> edges;
+    private ArrayList<Node> stopSequence;
+    private ArrayList<Edge> edges;
     private String id;
 
     /** Constructor */
-    public Trip(String id, List<Node> nodes){
-        nodesMap = new HashMap<String, Node>();
+    public Trip(String id){
+        this.stopSequence = new ArrayList<>();
+        this.edges = new ArrayList<>();
         this.id = id;
-        //put the nodes (and ids) into the map of nodes
-        for(Node n : nodes){
-            this.nodesMap.put(n.getId(), n);
-        }
 
     }
+
+    /**
+     * This method will add a stop to the ArrayList of stops
+     * and create a connection from the previous stop to it
+     * if it's not the first stop
+     * @param node
+     */
+    public void addStop(Node node){
+        if(!stopSequence.isEmpty()){
+            Node previousNode = stopSequence.get(stopSequence.size()-1);
+            Edge edge = new Edge(id, previousNode, node);
+            edges.add(edge);
+            /* Add the edge into the inEdge list of the node and outEdge of the previous */
+            node.addInEdge(edge);
+            previousNode.addOutEdge(edge);
+            //System.out.println("Stop \" " + node.getId() + "\" added to trip ID:  " + id + ", coming from Stop:  " + stopSequence.get(stopSequence.size()-1).getId());
+        }
+        stopSequence.add(node);
+
+    }
+
+    /**
+     * Print the connections in the console
+     * in the same format as the file but with arrows
+     * Used to ensure stops are in correct order
+     */
+    public void showConnections(){
+        System.out.print("Trip route: " + id + " Start: " + edges.get(0));
+        for(Edge e : edges)
+            System.out.print(" -> " + e.getDestinationNode().getId());
+
+        System.out.print("\n");
+    }
+
+
+
+
+
+
 
     /** Getter methods */
-    public Map<String, Node> getNodes(){
-        return this.nodesMap;
+    public ArrayList<Node> getStopSequence(String id){
+        return this.stopSequence;
+    }
+
+    public Collection<Edge> getEdges(){
+        return edges;
     }
 
 
-    /** Returns true if trip contains node of that ID */
-    public boolean hasNode(String id){
-        return nodesMap.containsKey(id);
-    }
-    /** Return the node in the trip by it's ID, only if the node exists */
-    public Node getNodeById(String id){
-        return hasNode(id) ? nodesMap.get(id) : null;
-    }
+
 
 
 
