@@ -11,6 +11,7 @@ public class Node {
     private String name, id;
     private List<Edge> inEdges, outEdges;
     private double lat, lon;
+    private Location location;
 
 
     /**
@@ -20,11 +21,14 @@ public class Node {
      * @param lat
      * @param lon
      */
-    public Node(String name, String id, double lat, double lon){
+    public Node(String id, String name, double lat, double lon){
         this.name = name;
         this.id = id;
         this.lat = lat;
         this.lon = lon;
+        this.location = Location.newFromLatLon(lat, lon);
+        this.inEdges = new ArrayList<>();
+        this.outEdges = new ArrayList<>();
     }
 
 
@@ -55,25 +59,32 @@ public class Node {
         return this.lon;
     }
 
+    /* Returns the location of the stop */
+    public Location getLocation(){
+        return this.location;
+    }
 
+    public List<Edge> getInEdges() {
+        return inEdges;
+    }
 
-    /**
-     * add an outgoing road to this Stop to a specified Stop
-     * @param r
-     * @param dest
-     */
-    public void addOutEdge(Edge r, Node dest){
-        outEdges.add(r);
-        //dest.addInEdge(r, this);
+    public List<Edge> getOutEdges() {
+        return outEdges;
     }
 
     /**
-     * add an incomming road to this Stop from a specified Stop
-     * @param r
-     * @param origin
+     * add an outgoing connection to this Stop
+     * @param e the edge to add
      */
-    public void addInEdge(Edge r, Node origin){
-        inEdges.add(r);
-        //dest.addOutEdge(r, this);
+    public void addOutEdge(Edge e){
+        outEdges.add(e);
+    }
+
+    /**
+     * add an incoming connection to this stop
+     * @param e the edge to add
+     */
+    public void addInEdge(Edge e){
+        inEdges.add(e);
     }
 }
