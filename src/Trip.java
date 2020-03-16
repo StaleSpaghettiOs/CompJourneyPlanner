@@ -42,7 +42,7 @@ public class Trip {
      * Used to ensure stops are in correct order
      */
     public void showConnections(){
-        System.out.print("Trip route: " + id + " Start: " + edges.get(0));
+        System.out.print("Trip route: " + id + " Start: " + stopSequence.get(0).getId());
         for(Edge e : edges)
             System.out.print(" -> " + e.getDestinationNode().getId());
 
@@ -50,13 +50,12 @@ public class Trip {
     }
 
 
-
-
-
-
+    public String getId() {
+        return id;
+    }
 
     /** Getter methods */
-    public ArrayList<Node> getStopSequence(String id){
+    public ArrayList<Node> getStopSequence(){
         return this.stopSequence;
     }
 

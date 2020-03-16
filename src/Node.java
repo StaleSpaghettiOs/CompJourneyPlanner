@@ -26,7 +26,7 @@ public class Node {
         this.id = id;
         this.lat = lat;
         this.lon = lon;
-        this.location = Location.newFromLatLon(lat, lon);
+        this.location = Location.newFromLatLon(this.lat, this.lon);
         this.inEdges = new ArrayList<>();
         this.outEdges = new ArrayList<>();
     }
