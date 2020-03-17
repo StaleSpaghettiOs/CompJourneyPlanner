@@ -5,11 +5,11 @@ import java.util.List;
  * Stop Object, contains two lists for outgoing and incoming
  * roads
  */
-public class Node {
+public class Stop {
 
     /** Fields */
     private String name, id;
-    private List<Edge> inEdges, outEdges;
+    private List<Connection> inConnections, outConnections;
     private double lat, lon;
     private Location location;
 
@@ -21,14 +21,14 @@ public class Node {
      * @param lat
      * @param lon
      */
-    public Node(String id, String name, double lat, double lon){
+    public Stop(String id, String name, double lat, double lon){
         this.name = name;
         this.id = id;
         this.lat = lat;
         this.lon = lon;
-        this.location = Location.newFromLatLon(this.lat, this.lon);
-        this.inEdges = new ArrayList<>();
-        this.outEdges = new ArrayList<>();
+        this.location = Location.newFromLatLon(lat, lon);
+        this.inConnections = new ArrayList<>();
+        this.outConnections = new ArrayList<>();
     }
 
 
@@ -64,27 +64,27 @@ public class Node {
         return this.location;
     }
 
-    public List<Edge> getInEdges() {
-        return inEdges;
+    public List<Connection> getInConnections() {
+        return inConnections;
     }
 
-    public List<Edge> getOutEdges() {
-        return outEdges;
+    public List<Connection> getOutConnections() {
+        return outConnections;
     }
 
     /**
      * add an outgoing connection to this Stop
-     * @param e the edge to add
+     * @param c the edge to add
      */
-    public void addOutEdge(Edge e){
-        outEdges.add(e);
+    public void addOutEdge(Connection c){
+        outConnections.add(c);
     }
 
     /**
      * add an incoming connection to this stop
-     * @param e the edge to add
+     * @param c the edge to add
      */
-    public void addInEdge(Edge e){
-        inEdges.add(e);
+    public void addInEdge(Connection c){
+        inConnections.add(c);
     }
 }

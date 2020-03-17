@@ -4,14 +4,14 @@ import java.util.*;
 public class Trip {
 
     /** Fields */
-    private ArrayList<Node> stopSequence;
-    private ArrayList<Edge> edges;
+    private ArrayList<Stop> stopSequence;
+    private ArrayList<Connection> connections;
     private String id;
 
     /** Constructor */
     public Trip(String id){
         this.stopSequence = new ArrayList<>();
-        this.edges = new ArrayList<>();
+        this.connections = new ArrayList<>();
         this.id = id;
 
     }
@@ -20,19 +20,19 @@ public class Trip {
      * This method will add a stop to the ArrayList of stops
      * and create a connection from the previous stop to it
      * if it's not the first stop
-     * @param node
+     * @param stop
      */
-    public void addStop(Node node){
+    public void addStop(Stop stop){
         if(!stopSequence.isEmpty()){
-            Node previousNode = stopSequence.get(stopSequence.size()-1);
-            Edge edge = new Edge(id, previousNode, node);
-            edges.add(edge);
-            /* Add the edge into the inEdge list of the node and outEdge of the previous */
-            node.addInEdge(edge);
-            previousNode.addOutEdge(edge);
-            //System.out.println("Stop \" " + node.getId() + "\" added to trip ID:  " + id + ", coming from Stop:  " + stopSequence.get(stopSequence.size()-1).getId());
+            Stop previousStop = stopSequence.get(stopSequence.size()-1);
+            Connection connection = new Connection(id, previousStop, stop);
+            connections.add(connection);
+            /* Add the connection into the inEdge list of the stop and outEdge of the previous */
+            stop.addInEdge(connection);
+            previousStop.addOutEdge(connection);
+            //System.out.println("Stop \" " + stop.getId() + "\" added to trip ID:  " + id + ", coming from Stop:  " + stopSequence.get(stopSequence.size()-1).getId());
         }
-        stopSequence.add(node);
+        stopSequence.add(stop);
 
     }
 
@@ -43,8 +43,8 @@ public class Trip {
      */
     public void showConnections(){
         System.out.print("Trip route: " + id + " Start: " + stopSequence.get(0).getId());
-        for(Edge e : edges)
-            System.out.print(" -> " + e.getDestinationNode().getId());
+        for(Connection e : connections)
+            System.out.print(" -> " + e.getDestinationStop().getId());
 
         System.out.print("\n");
     }
@@ -55,12 +55,12 @@ public class Trip {
     }
 
     /** Getter methods */
-    public ArrayList<Node> getStopSequence(){
+    public ArrayList<Stop> getStopSequence(){
         return this.stopSequence;
     }
 
-    public Collection<Edge> getEdges(){
-        return edges;
+    public Collection<Connection> getConnections(){
+        return connections;
     }
 
 

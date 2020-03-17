@@ -66,6 +66,27 @@ public abstract class GUI {
 	protected abstract void onClick(MouseEvent e);
 
 	/**
+	 * Is called when the mouse is dragged
+	 * @author Jakob Coker
+	 * @param e
+	 */
+	protected abstract void onMouseDrag(MouseEvent e);
+
+
+	/**
+	 * Is called when the mouse wheel is scrolled
+	 * @author Jakob Coker
+	 */
+	protected abstract void onMouseWheelMove(MouseWheelEvent e);
+
+	/**
+	 * Is called when the mouse is pressed (not when its released)
+	 * @author Jakob Coker
+	 */
+	protected abstract void onMousePress(MouseEvent e);
+
+
+	/**
 	 * Is called whenever the search box is updated. Use getSearchBox to get the
 	 * JTextField object that is the search box itself.
 	 */
@@ -127,7 +148,7 @@ public abstract class GUI {
 	// assignment up to and including completion.
 	// --------------------------------------------------------------------
 
-	private static final boolean UPDATE_ON_EVERY_CHARACTER = false;
+	private static final boolean UPDATE_ON_EVERY_CHARACTER = true;
 
 	private static final int DEFAULT_DRAWING_HEIGHT = 400;
 	private static final int DEFAULT_DRAWING_WIDTH = 400;
@@ -369,17 +390,39 @@ public abstract class GUI {
 			}
 		});
 
-		drawing.addMouseWheelListener(new MouseAdapter() {
-			public void mouseWheelMoved(MouseWheelEvent e) {
+		drawing.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent e) {
+				onMousePress(e);
+				redraw();
 			}
 		});
 
-		/*
-		 * then make the JTextArea that goes down the bottom. we put this in a
-		 * JScrollPane to get scroll bars when necessary.
-		 */
 
-		textOutputArea = new JTextArea(TEXT_OUTPUT_ROWS, 0);
+		drawing.addMouseMotionListener(new MouseAdapter() {
+			@Override
+			public void mouseDragged(MouseEvent e) {
+				onMouseDrag(e);
+				redraw();
+			}
+		});
+
+		drawing.addMouseWheelListener(new MouseAdapter() {
+			@Override
+			public void mouseWheelMoved(MouseWheelEvent e) {
+				onMouseWheelMove(e);
+				redraw();
+			}
+		});
+
+
+
+				/*
+				 * then make the JTextArea that goes down the bottom. we put this in a
+				 * JScrollPane to get scroll bars when necessary.
+				 */
+
+				textOutputArea = new JTextArea(TEXT_OUTPUT_ROWS, 0);
 		textOutputArea.setLineWrap(true);
 		textOutputArea.setWrapStyleWord(true); // pretty line wrap.
 		textOutputArea.setEditable(false);
