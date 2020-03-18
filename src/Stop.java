@@ -2,8 +2,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Stop Object, contains two lists for outgoing and incoming
+ * Stop object, contains two lists for outgoing and incoming
  * roads
+ * @author Jakob Coker
  */
 public class Stop {
 
@@ -31,43 +32,25 @@ public class Stop {
         this.outConnections = new ArrayList<>();
     }
 
-
-    /**
-     * Returns the name of the Stop
-     * @return name
-     */
+    /** Getters */
     public String getName(){
         return this.name;
     }
-
-    /**
-     * Returns the ID of the Stop
-     * @return id
-     */
     public String getId(){
         return this.id;
     }
-
-    /**
-     * Returns the latitude and longitude of the Stop
-     * @return Location
-     */
     public double getLat(){
         return this.lat;
     }
     public double getLon(){
         return this.lon;
     }
-
-    /* Returns the location of the stop */
     public Location getLocation(){
         return this.location;
     }
-
     public List<Connection> getInConnections() {
         return inConnections;
     }
-
     public List<Connection> getOutConnections() {
         return outConnections;
     }

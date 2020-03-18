@@ -7,9 +7,7 @@ import java.util.List;
 
 public class JourneyPlanner extends GUI {
 
-    /**
-     * Fields
-     */
+    /** Fields */
     private Map<String, Stop> stopMap;//Used to identify nodes via String ID
 
     private ArrayList<Connection> connectionCollection; //Used to store edges for drawing/highlighting
@@ -43,6 +41,7 @@ public class JourneyPlanner extends GUI {
     private int hPWidth = 8;
     private int hPHeight = 8;
 
+    /** Constructor */
     public JourneyPlanner() {
         this.stopMap = new HashMap<>();
         this.connectionCollection = new ArrayList<>();
@@ -53,6 +52,12 @@ public class JourneyPlanner extends GUI {
         this.trie = new Trie();
     }
 
+    /**
+     * Implementation of redraw method
+     * manipulates the graphics objects
+     * to do all drawing of stops&edges
+     * @param g
+     */
     @Override
     protected void redraw(Graphics g) {
 
@@ -115,6 +120,12 @@ public class JourneyPlanner extends GUI {
 
     }
 
+    /**
+     * onClick implementation
+     * Highlights stops when they're clicked.
+     * Checks if the user isn't dragging first.
+     * @param e MouseReleased event
+     */
     @Override
     protected void onClick(MouseEvent e) {
         /* Only do onClick if we aren't dragging */
@@ -144,6 +155,12 @@ public class JourneyPlanner extends GUI {
         isDrag = false;
     }
 
+    /**
+     * Like mouseClicked, except occurs on press
+     * and not release. Saves location upon clicking
+     * on the display - used for dragging.
+     * @param e MousePressed event
+     */
     @Override
     public void onMousePress(MouseEvent e){
         oldX = e.getX();
@@ -151,6 +168,13 @@ public class JourneyPlanner extends GUI {
     }
 
 
+    /**
+     * Mouse drag implementation, sets the origin
+     * to the new x,y location (inverted x axis)
+     * of the mouse and then sets oldX,oldY to that.
+     * @param e
+     */
+    @Override
     protected void onMouseDrag(MouseEvent e){
         newX = e.getX();
         newY = e.getY();
@@ -258,6 +282,13 @@ public class JourneyPlanner extends GUI {
         }
     }
 
+    /**
+     * Controls the logic behind what to do when
+     * the user selects the buttons (and when a
+     * scroll event is passed to it), such as zooming,
+     * moving north,east,south,west.
+     * @param m the move enum
+     */
     @Override
     protected void onMove(Move m) {
 
@@ -322,9 +353,13 @@ public class JourneyPlanner extends GUI {
     protected void onLoad(File stopFile, File tripFile){
         loadNodes(stopFile);
         loadTrips(tripFile);
-
     }
 
+    /**
+     * Handles all of the processing of the stops.txt
+     * file and creating the stop objects
+     * @param stopFile
+     */
     public void loadNodes(File stopFile) {
         /* Create a buffered reader, and catch IOException */
         try {
@@ -365,6 +400,13 @@ public class JourneyPlanner extends GUI {
         }
     }
 
+    /**
+     * Handles all of the processing of the trips.txt
+     * file and creates Trip objects. Creates edge objects
+     * using trip.addStop() with stops generated from loadNodes
+     * @param tripFile the trips.txt file
+     *
+     */
     public void loadTrips(File tripFile){
         try  {
             BufferedReader br = new BufferedReader(new FileReader(tripFile));

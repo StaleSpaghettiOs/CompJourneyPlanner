@@ -1,6 +1,10 @@
 import java.util.*;
 
-
+/**
+ * Trip object, forms connections
+ * between stops
+ * @author Jakob Coker
+ */
 public class Trip {
 
     /** Fields */
@@ -50,17 +54,17 @@ public class Trip {
     }
 
 
-    public String getId() {
-        return id;
-    }
+
 
     /** Getter methods */
     public ArrayList<Stop> getStopSequence(){
         return this.stopSequence;
     }
-
+    public String getId() {
+        return this.id;
+    }
     public Collection<Connection> getConnections(){
-        return connections;
+        return this.connections;
     }
 
 

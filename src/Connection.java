@@ -1,3 +1,9 @@
+/**
+ * Connection object, stores the source
+ * and destination stop associated with
+ * that trip ID
+ * @author Jakob Coker
+ */
 public class Connection {
 
     /** Fields */

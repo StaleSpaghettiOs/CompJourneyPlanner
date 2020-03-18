@@ -1,5 +1,9 @@
 import java.util.*;
 
+/**
+ * Trie Structure, constructed from Trie objects
+ * @author Jakob Coker
+ */
 public class Trie {
     /** Fields */
 
@@ -52,6 +56,12 @@ public class Trie {
         return current.getStop();
     }
 
+    /**
+     * Get all nodes that start with a
+     * specified prefix
+     * @param prefix the string to complete
+     * @return the list of stops
+     */
     public List<Stop> getAll(char[] prefix){
         List<Stop> results = new ArrayList<>();
         //Set node to the root of the trie
@@ -59,17 +69,18 @@ public class Trie {
 
         for(char c : prefix) {
             if (!current.getChildren().containsKey(c)) return null;
-
             current = current.getChildren().get(c);
         }
-            getAllFrom(current, results);
-            return results;
-
-
-
+        getAllFrom(current, results);
+        return results;
     }
 
-
+    /**
+     * Used by getAll method to add all stops
+     * under a node to the list of results
+     * @param node the parent to start at
+     * @param results an empty list
+     */
     public void getAllFrom(TrieNode node, List<Stop> results){
         TrieNode current = node;
 

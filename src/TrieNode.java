@@ -1,5 +1,12 @@
 import java.util.HashMap;
 
+/**
+ * TrieNode object represents a single
+ * node in a Trie structure. Used to reference
+ * the root node and get information on a single
+ * node.
+ * @author Jakob Coker
+ */
 public class TrieNode {
 
     private HashMap<Character, TrieNode> children;
