@@ -9,13 +9,14 @@ public class JourneyPlanner extends GUI {
 
     /** Fields */
     private Map<String, Stop> stopMap;//Used to identify nodes via String ID
-
+    private ArrayList<Stop> stopList; //my attempt at fixing ConcurrentModificationException
     private ArrayList<Connection> connectionCollection; //Used to store edges for drawing/highlighting
     private ArrayList<Trip> tripCollection; //used to store trips for outputting ones passing through nodes
     private Trie trie;
     private Location origin;
     private double scale;
     private double ZOOM_FACTOR = 1.75; //Modifiable zoom factor
+    private int stopCount, connectionCount, tripCount;
 
     /* Used to calculate new origins */
     private Location topLeft, topRight, botLeft, botRight;
@@ -47,42 +48,57 @@ public class JourneyPlanner extends GUI {
         this.connectionCollection = new ArrayList<>();
         this.tripCollection = new ArrayList<>();
         this.prefixStops = new ArrayList<>();
-        this.closestStop = new Stop(null, null, 0, 0);
         this.highlightedTrips = new ArrayList<>();
         this.trie = new Trie();
+        this.stopList = new ArrayList<>();
     }
 
     /**
      * Implementation of redraw method
      * manipulates the graphics objects
      * to do all drawing of stops&edges
-     * @param g
+     * @param g graphics object
      */
-    @Override
     protected void redraw(Graphics g) {
 
         /* Only purpose is to change stroke width 2 make it prettier */
         Graphics2D g2 = (Graphics2D) g;
-        g2.setStroke(new BasicStroke(2));
 
-        /** Draw all the edges */
+        /** Draw all the connections */
         g2.setColor(Color.GRAY);
         for (int i = 0; i < connectionCollection.size(); i++) {
-            g2.drawLine((int) connectionCollection.get(i).getSourceStop().getLocation().asPoint(origin, scale).getX(),
+            g2.setStroke(new BasicStroke(2));
+            g.drawLine((int) connectionCollection.get(i).getSourceStop().getLocation().asPoint(origin, scale).getX(),
                     (int) connectionCollection.get(i).getSourceStop().getLocation().asPoint(origin, scale).getY(),
                     (int) connectionCollection.get(i).getDestinationStop().getLocation().asPoint(origin, scale).getX(),
                     (int) connectionCollection.get(i).getDestinationStop().getLocation().asPoint(origin, scale).getY());
+
+        }
+        /** Draw all the stops */
+        for (int s = 0; s < stopList.size(); s++) {
+            g2.setStroke(new BasicStroke(2));
+            g2.setColor(Color.BLACK);
+            g.fillOval((int) (stopList.get(s).getLocation().asPoint(origin, scale).getX())-pWidth/2,
+                    (int) (stopList.get(s).getLocation().asPoint(origin, scale).getY())-pHeight/2, pWidth, pHeight);
         }
 
 
 
-        /** Highlight all edges passing through the selected stop */
+        /** Draw the selected stop */
+        if (stopList.contains(closestStop)) {
+            g2.setColor(Color.RED);
+            g2.setStroke(new BasicStroke(3));
+            g.fillOval((int) closestStop.getLocation().asPoint(origin, scale).getX() - hPWidth/2,
+                    (int) closestStop.getLocation().asPoint(origin, scale).getY()-hPHeight/2, hPWidth, hPHeight);
+        }
+
+        /** Highlight all connections passing through the selected stop */
         if (!highlightedTrips.isEmpty()) {
             g.setColor(Color.BLUE);
             g2.setStroke(new BasicStroke(3));
             for (Trip t : highlightedTrips) {
                 for (Connection e : t.getConnections()) {
-                    g2.drawLine((int) e.getSourceStop().getLocation().asPoint(origin, scale).getX(),
+                    g.drawLine((int) e.getSourceStop().getLocation().asPoint(origin, scale).getX(),
                             (int) e.getSourceStop().getLocation().asPoint(origin, scale).getY(),
                             (int) e.getDestinationStop().getLocation().asPoint(origin, scale).getX(),
                             (int) e.getDestinationStop().getLocation().asPoint(origin, scale).getY());
@@ -90,33 +106,16 @@ public class JourneyPlanner extends GUI {
             }
         }
 
-        /** Draw the selected stop */
-        if (stopMap.containsKey(closestStop.getId())) {
-            g2.setColor(Color.RED);
-            g2.setStroke(new BasicStroke(3));
-            g2.fillOval((int) closestStop.getLocation().asPoint(origin, scale).getX() - hPWidth/2,
-                    (int) closestStop.getLocation().asPoint(origin, scale).getY()-hPHeight/2, hPWidth, hPHeight);
-        }
-
-        /** Highlight all nodes matching searched prefix */
+        /** Highlight all stops matching searched prefix */
         if (!prefixStops.isEmpty()) {
             for (Stop n : prefixStops) {
                 g2.setStroke(new BasicStroke(3));
                 g2.setColor(Color.RED);
                 g2.setPaintMode();
-                g2.fillOval((int) n.getLocation().asPoint(origin, scale).getX()-hPWidth/2,
+                g.fillOval((int) n.getLocation().asPoint(origin, scale).getX()-hPWidth/2,
                         (int) n.getLocation().asPoint(origin, scale).getY()-hPHeight/2, hPWidth, hPHeight);
             }
         }
-
-
-        /** Draw all the stops */
-        for (Stop s : stopMap.values()) {
-            g2.setColor(Color.BLACK);
-            g2.fillOval((int) (s.getLocation().asPoint(origin, scale).getX())-pWidth/2,
-                    (int) (s.getLocation().asPoint(origin, scale).getY())-pHeight/2, pWidth, pHeight);
-        }
-
 
     }
 
@@ -135,7 +134,7 @@ public class JourneyPlanner extends GUI {
             Point mousePoint = new Point(e.getX(), e.getY());
             Location mouseLoc = Location.newFromPoint(mousePoint, origin, scale);
             double closestDist = Double.POSITIVE_INFINITY;
-            closestStop = stopMap.get("OOBUS003");
+            closestStop = stopList.get(0);
             for (Stop n : stopMap.values()) {
                 double currentDist = n.getLocation().distance(mouseLoc);
                 if (currentDist < closestDist) {
@@ -148,7 +147,6 @@ public class JourneyPlanner extends GUI {
                     highlightedTrips.add(t);
                 }
             }
-
             getTextOutputArea().removeAll();
             printInfo();
         }
@@ -219,60 +217,46 @@ public class JourneyPlanner extends GUI {
         /* Reset the highlighted nodes of matching prefixes */
         prefixStops = new ArrayList<>();
         Stop queryStop;
-        /* If the search word exactly matches a stop */
-        if (trie.queryWord(word)) {
-            prefixStops.clear(); //Clear any previously highlighted nodes
-            queryStop = trie.get(searchWord); //Set queryStop to the node we searched for
-            closestStop = stopMap.get(queryStop.getId()); //Set the node to be highlighted to the one we found
-            /* Add all trips connected to that stop to the list of trips to highlight */
-            for (Trip t : tripCollection) {
-                if (t.getStopSequence().contains(closestStop)) {
-                    highlightedTrips.add(t);
-                }
-            }
-            printInfo(); //print usual stop&trip info
-        } else if (trie.queryPrefix(word)){ //If there are multiple stops starting with that prefix
-            prefixStops = trie.getAll(searchWord); //Get the list of results matching the prefix
-            /*
-             * Its possible that a prefix only has one child all the way down to the completed word
-             * (e.g. - prefix "sac" only has "Sacred Heart Primary" as a descendant.
-             * So, account for that here then print all stops matching the search
-             */
-            if(prefixStops.size() > 1) {
-                getTextOutputArea().append("\nStops matching search:\n");
-                for (Stop n : prefixStops) {
-                    getTextOutputArea().append(n.getName() + "    ");
-                }
-                getTextOutputArea().append("\n");
-            /*
-             * If the prefix only has one complete word underneath it,
-             * highlight the stop of that name and all trips going through it.
-             */
-            }else if(trie.getAll(searchWord).size() == 1){
-                closestStop = trie.getAll(searchWord).get(0); //We know this is the index of the stop
-                for (Trip t : tripCollection) { //now add the connections to be highlighted
-                    if (t.getStopSequence().contains(closestStop)) {
-                        highlightedTrips.add(t);
+
+        /* If the search is a prefix */
+        if(trie.queryPrefix(searchWord)){
+
+            /* If the word exactly matches a stop */
+            if(trie.queryWord(searchWord)){
+                prefixStops.addAll(trie.get(searchWord)); //add to list as stops can have the same name
+                for(Stop s : prefixStops){
+                    getTextOutputArea().append("\n\nStop found: "+s.getName()+" (" + s.getId()+")    ");
+                    for(Trip t : tripCollection){
+                        if(t.getStopSequence().contains(s)){
+                            highlightedTrips.add(t);
+                        }
+                    }
+                    getTextOutputArea().append("\nTrips going through this stop:");
+                    for(Trip t : highlightedTrips){
+                        getTextOutputArea().append(" "+t.getId()+",");
                     }
                 }
-                printInfo();
+            }else{ //The Stop(s) are further down
+
+                prefixStops.addAll(trie.getAll(searchWord));
+                getTextOutputArea().append("\n\nStops matching search: ");
+                for(Stop s : prefixStops){
+                    getTextOutputArea().append(s.getName()+" (" + s.getId()+")    ");
+                }
             }
+        }else{
+            getTextOutputArea().append("\nNo stops found.\n");
         }
+
+
     }
-
-
-
-
-
-
-
 
     /**
      * Fill the TextOutputArea with information on the selected stop
      * and all trips going through it. Cleans up code in several methods.
      */
     public void printInfo(){
-        getTextOutputArea().append("\nStop name: " + closestStop.getName()+ ", ID-"+ closestStop.getId() + "\nTrips going through this stop: ");
+        getTextOutputArea().append("\nFound Stop: " + closestStop.getName()+ ", ID-"+ closestStop.getId() + "\nTrips going through this stop: ");
         for(Trip t : tripCollection){
             if(t.getStopSequence().contains(closestStop)){
                 getTextOutputArea().append(t.getId());
@@ -340,7 +324,6 @@ public class JourneyPlanner extends GUI {
         }
     }
 
-
     /**
      * Load the data into the appropriate
      * structures (handled by separate methods)
@@ -351,8 +334,13 @@ public class JourneyPlanner extends GUI {
      */
     @Override
     protected void onLoad(File stopFile, File tripFile){
-        loadNodes(stopFile);
+        loadStops(stopFile);
         loadTrips(tripFile);
+        redraw();
+        System.out.println("Done!");
+        System.out.println(stopCount + " stops loaded");
+        System.out.println(tripCount + " trips loaded");
+        System.out.println(connectionCount + " connections created");
     }
 
     /**
@@ -360,7 +348,7 @@ public class JourneyPlanner extends GUI {
      * file and creating the stop objects
      * @param stopFile
      */
-    public void loadNodes(File stopFile) {
+    public void loadStops(File stopFile) {
         /* Create a buffered reader, and catch IOException */
         try {
             BufferedReader br = new BufferedReader(new FileReader(stopFile));
@@ -371,8 +359,11 @@ public class JourneyPlanner extends GUI {
                 StringArray = line.split("\t"); //split line into separate Strings
                 /* Construct a new stop in order of (ID, Name, Lat, Lon) */
                 Stop stop = new Stop(StringArray[0], StringArray[1], Double.parseDouble(StringArray[2]), Double.parseDouble(StringArray[3]));
+                stopCount+=1;
                 stopMap.put(stop.getId(), stop); //Put into nodesMap
+                stopList.add(stop);
                 trie.add(StringArray[1].toCharArray(), stop); //Add word to TrieNode
+
 
                 /* Now find the highest x,y and lowest x,y values in order to calculate origin and scale */
                 if(stop.getLocation().x < lowestX) {
@@ -419,12 +410,13 @@ public class JourneyPlanner extends GUI {
 
                 /* Construct a new Trip object with the trip ID */
                 Trip trip = new Trip(StringArray[0]);
+                tripCount += 1;
                 tripCollection.add(trip);
                 /* Loop through each Stop until the end of the line */
                 for(int s = 1; s < StringArray.length; s++){
-                        Stop stop = stopMap.get(StringArray[s]); //Add the Stop to the nodesMap
+                        Stop stop = stopMap.get(StringArray[s]); //Get the Stop from the stopMap
                         trip.addStop(stop); //Add the Stop to the Trip (this also adds the in/outEdges to the nodes)
-
+                        if(s > 1) connectionCount+=1;
                 }
                 connectionCollection.addAll(trip.getConnections());
                 trip.showConnections();
@@ -434,7 +426,6 @@ public class JourneyPlanner extends GUI {
             e.printStackTrace();
         }
     }
-
 
     public static void main (String[]args){
         new JourneyPlanner().onLoad(new File("data/stops.txt"), new File("data/trips.txt"));

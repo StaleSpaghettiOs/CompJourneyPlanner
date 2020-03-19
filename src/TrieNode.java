@@ -1,4 +1,6 @@
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * TrieNode object represents a single
@@ -11,10 +13,11 @@ public class TrieNode {
 
     private HashMap<Character, TrieNode> children;
     private boolean isCompleteWord = false;
-    private Stop stop;
+    private ArrayList<Stop> stops;
 
     public TrieNode(){
         this.children = new HashMap<>();
+        this.stops = new ArrayList<>();
     }
 
     public HashMap<Character, TrieNode> getChildren() {
@@ -25,12 +28,12 @@ public class TrieNode {
         return isCompleteWord;
     }
 
-    public Stop getStop() {
-        return stop;
+    public ArrayList<Stop> getStop() {
+        return this.stops;
     }
 
-    public void setStop(Stop stop){
-        this.stop = stop;
+    public void addStop(Stop stop){
+        stops.add(stop);
     }
 
     public void setCompleteWord(){

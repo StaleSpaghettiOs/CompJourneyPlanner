@@ -32,8 +32,8 @@ public class Trip {
             Connection connection = new Connection(id, previousStop, stop);
             connections.add(connection);
             /* Add the connection into the inEdge list of the stop and outEdge of the previous */
-            stop.addInEdge(connection);
-            previousStop.addOutEdge(connection);
+            stop.addInConnection(connection);
+            previousStop.addOutConnection(connection);
             //System.out.println("Stop \" " + stop.getId() + "\" added to trip ID:  " + id + ", coming from Stop:  " + stopSequence.get(stopSequence.size()-1).getId());
         }
         stopSequence.add(stop);
@@ -63,7 +63,7 @@ public class Trip {
     public String getId() {
         return this.id;
     }
-    public Collection<Connection> getConnections(){
+    public ArrayList<Connection> getConnections(){
         return this.connections;
     }
 

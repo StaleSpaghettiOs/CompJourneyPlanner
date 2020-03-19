@@ -59,7 +59,7 @@ public class Stop {
      * add an outgoing connection to this Stop
      * @param c the edge to add
      */
-    public void addOutEdge(Connection c){
+    public void addOutConnection(Connection c){
         outConnections.add(c);
     }
 
@@ -67,7 +67,7 @@ public class Stop {
      * add an incoming connection to this stop
      * @param c the edge to add
      */
-    public void addInEdge(Connection c){
+    public void addInConnection(Connection c){
         inConnections.add(c);
     }
 }

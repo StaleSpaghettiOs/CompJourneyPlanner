@@ -1,7 +1,7 @@
 import java.util.*;
 
 /**
- * Trie Structure, constructed from Trie objects
+ * Trie Structure, constructed from TrieNode objects
  * @author Jakob Coker
  */
 public class Trie {
@@ -33,7 +33,7 @@ public class Trie {
             current = current.getChildren().get(c);
         }
         current.setCompleteWord();
-        current.setStop(stop);
+        current.addStop(stop);
     }
 
 
@@ -41,17 +41,19 @@ public class Trie {
 
 
     /**
-     * Placeholder code for trie get method
+     * Retrieves the stop
      * @param word - the input word
      * @return objects
      */
-    public Stop get(char[] word){
+    public ArrayList<Stop> get(char[] word){
         //Set node to the root of the trie
         TrieNode current = root;
         for(char c : word){
            if(!current.getChildren().containsKey(c)) return null;
            current = current.getChildren().get(c);
         }
+
+        if(!current.isCompleteWord()) return null;
 
         return current.getStop();
     }
@@ -89,7 +91,7 @@ public class Trie {
                 getAllFrom(trieNode, results);
             }
         } else {
-            results.add(current.getStop());
+            results.addAll(current.getStop());
         }
     }
 
@@ -98,12 +100,12 @@ public class Trie {
      * @param word - the input word
      * @return current.isWordEnding
      */
-    public boolean queryWord(String word){
+    public boolean queryWord(char[] word){
         TrieNode current = root;
 
         /* traverse the input word */
-        char[] letters = word.toCharArray();
-        for(char c : letters){
+
+        for(char c : word){
             if(current.getChildren().containsKey(c)) current = current.getChildren().get(c);
             else return false;
         }
@@ -113,16 +115,15 @@ public class Trie {
 
     /**
      * Query whether a word is in the trie structure,
-     * but is not a word ending - telling us the word
+     * doesn't have to be a word ending - telling us the word
      * is a prefix
      * @param word
      * @return
      */
-    public boolean queryPrefix(String word){
+    public boolean queryPrefix(char[] word){
         TrieNode current = root;
 
-        char[] letters = word.toCharArray();
-        for(char c : letters){
+        for(char c : word){
             if(current.getChildren().containsKey(c)) current = current.getChildren().get(c);
             else return false;
         }
